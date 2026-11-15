@@ -147,7 +147,7 @@ public class ElasticsearchSinkConnectorConfigTest {
                 .isInstanceOf(ConnectException.class)
                 .satisfies(e -> {
                     for (String property : expectedInMessage) {
-                        assertThat(e.getMessage()).as("message names '%s'", property).contains("'" + property);
+                        assertThat(e.getMessage()).as("message names '%s'", name).contains("'" + property);
                     }
                 });
     }

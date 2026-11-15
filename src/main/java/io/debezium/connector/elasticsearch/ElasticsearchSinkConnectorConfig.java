@@ -1138,6 +1138,7 @@ public class ElasticsearchSinkConnectorConfig implements SinkConnectorConfig {
 
     public static final Field DELETE_ENABLED_FIELD = SinkConnectorConfig.DELETE_ENABLED_FIELD
             .withDefault(true)
+            .withNoValidation()
             .withDescription("Whether delete events are propagated. Defaults to 'true' here, unlike other Debezium sinks: a CDC "
                     + "sink that silently drops deletes is precisely the failure this connector exists to eliminate. Set to "
                     + "'false' explicitly for an append-only index.");
