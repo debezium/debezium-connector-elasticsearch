@@ -36,6 +36,7 @@ import io.debezium.connector.elasticsearch.record.RecordProcessingException;
 import io.debezium.connector.elasticsearch.record.SinkOperation;
 import io.debezium.dlq.ErrorReporter;
 import io.debezium.metadata.CollectionId;
+import io.debezium.openlineage.ConnectorContext;
 import io.debezium.sink.AbstractChangeEventSink;
 import io.debezium.sink.DebeziumSinkRecord;
 import io.debezium.sink.batch.Batch;
@@ -76,9 +77,9 @@ public class ElasticsearchChangeEventSink extends AbstractChangeEventSink {
     private long lastDrainMs = System.currentTimeMillis();
 
     public ElasticsearchChangeEventSink(ElasticsearchSinkConnectorConfig config, ElasticsearchConnection connection,
-                                        ErrorReporter errorReporter, ElasticsearchSinkConnectorMetrics metrics,
-                                        Map<String, String> rawProperties) {
-        super(config, errorReporter);
+                                        ConnectorContext connectorContext, ErrorReporter errorReporter,
+                                        ElasticsearchSinkConnectorMetrics metrics, Map<String, String> rawProperties) {
+        super(config, errorReporter, connectorContext);
         this.sinkConfig = config;
         this.connection = connection;
         this.errorReporter = errorReporter;

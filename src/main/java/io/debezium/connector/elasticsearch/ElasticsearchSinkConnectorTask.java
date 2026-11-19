@@ -6,16 +6,12 @@
 package io.debezium.connector.elasticsearch;
 
 import static io.debezium.config.ConfigurationNames.TASK_ID_PROPERTY_NAME;
-import static io.debezium.openlineage.dataset.DatasetMetadata.STREAM_DATASET_TYPE;
-import static io.debezium.openlineage.dataset.DatasetMetadata.DataStore.KAFKA;
-import static io.debezium.openlineage.dataset.DatasetMetadata.DatasetKind.INPUT;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
@@ -43,8 +39,6 @@ import io.debezium.dlq.ErrorReporter;
 import io.debezium.dlq.ErrorReporters;
 import io.debezium.openlineage.ConnectorContext;
 import io.debezium.openlineage.DebeziumOpenLineageEmitter;
-import io.debezium.openlineage.dataset.DatasetDataExtractor;
-import io.debezium.openlineage.dataset.DatasetMetadata;
 import io.debezium.util.Strings;
 
 /**
@@ -60,7 +54,6 @@ public class ElasticsearchSinkConnectorTask extends SinkTask {
     private static final Logger LOGGER = LoggerFactory.getLogger(ElasticsearchSinkConnectorTask.class);
 
     private static final Class<?>[] EMPTY_CLASS_ARRAY = new Class[0];
-    private static final DatasetDataExtractor DATASET_DATA_EXTRACTOR = new DatasetDataExtractor();
 
     private enum State {
         RUNNING,
@@ -129,7 +122,7 @@ public class ElasticsearchSinkConnectorTask extends SinkTask {
             final ErrorReporter errorReporter = ErrorReporters.fromContext(context);
             ErrorReporters.validateConfiguration(errorReporter, props);
 
-            changeEventSink = new ElasticsearchChangeEventSink(config, elasticsearchConnection, errorReporter, metrics, props);
+            changeEventSink = new ElasticsearchChangeEventSink(config, elasticsearchConnection, connectorContext, errorReporter, metrics, props);
             DebeziumOpenLineageEmitter.emit(connectorContext, DebeziumTaskState.RUNNING);
         }
         catch (RuntimeException e) {
@@ -151,9 +144,6 @@ public class ElasticsearchSinkConnectorTask extends SinkTask {
         }
 
         LOGGER.debug("Received {} changes.", records.size());
-        records.forEach(record -> DebeziumOpenLineageEmitter.emit(connectorContext, DebeziumTaskState.RUNNING,
-                List.of(new DatasetMetadata(record.topic(), INPUT, STREAM_DATASET_TYPE, KAFKA,
-                        DATASET_DATA_EXTRACTOR.extract(record)))));
 
         try {
             changeEventSink.execute(records);
